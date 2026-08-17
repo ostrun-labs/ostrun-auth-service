@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4450EE1B-4E09-4CE9-82BC-709896672085}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OstrunAuthService.Domain", "src\OstrunAuthService.Domain\OstrunAuthService.Domain.csproj", "{3D004A2C-03F1-4445-B143-B3ABB2077278}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OstrunAuthService.Application", "src\OstrunAuthService.Application\OstrunAuthService.Application.csproj", "{66AFAD8F-80B1-4FBB-8828-642F51FDB324}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OstrunAuthService.Infrastructure", "src\OstrunAuthService.Infrastructure\OstrunAuthService.Infrastructure.csproj", "{B121BD69-A483-4368-9C36-DE48C5DED2ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OstrunAuthService.Api", "src\OstrunAuthService.Api\OstrunAuthService.Api.csproj", "{7190DA32-7A53-4C39-AB53-80015158C8E9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{AE426E2D-503C-4B48-B12F-EFA323CCA745}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OstrunAuthService.UnitTests", "tests\OstrunAuthService.UnitTests\OstrunAuthService.UnitTests.csproj", "{740E9CED-DFED-4F93-83F5-C223DAD15CBC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3D004A2C-03F1-4445-B143-B3ABB2077278}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D004A2C-03F1-4445-B143-B3ABB2077278}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D004A2C-03F1-4445-B143-B3ABB2077278}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D004A2C-03F1-4445-B143-B3ABB2077278}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66AFAD8F-80B1-4FBB-8828-642F51FDB324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66AFAD8F-80B1-4FBB-8828-642F51FDB324}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66AFAD8F-80B1-4FBB-8828-642F51FDB324}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66AFAD8F-80B1-4FBB-8828-642F51FDB324}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B121BD69-A483-4368-9C36-DE48C5DED2ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B121BD69-A483-4368-9C36-DE48C5DED2ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B121BD69-A483-4368-9C36-DE48C5DED2ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B121BD69-A483-4368-9C36-DE48C5DED2ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7190DA32-7A53-4C39-AB53-80015158C8E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7190DA32-7A53-4C39-AB53-80015158C8E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7190DA32-7A53-4C39-AB53-80015158C8E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7190DA32-7A53-4C39-AB53-80015158C8E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{740E9CED-DFED-4F93-83F5-C223DAD15CBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{740E9CED-DFED-4F93-83F5-C223DAD15CBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{740E9CED-DFED-4F93-83F5-C223DAD15CBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{740E9CED-DFED-4F93-83F5-C223DAD15CBC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3D004A2C-03F1-4445-B143-B3ABB2077278} = {4450EE1B-4E09-4CE9-82BC-709896672085}
+		{66AFAD8F-80B1-4FBB-8828-642F51FDB324} = {4450EE1B-4E09-4CE9-82BC-709896672085}
+		{B121BD69-A483-4368-9C36-DE48C5DED2ED} = {4450EE1B-4E09-4CE9-82BC-709896672085}
+		{7190DA32-7A53-4C39-AB53-80015158C8E9} = {4450EE1B-4E09-4CE9-82BC-709896672085}
+		{740E9CED-DFED-4F93-83F5-C223DAD15CBC} = {AE426E2D-503C-4B48-B12F-EFA323CCA745}
+	EndGlobalSection
+EndGlobal
