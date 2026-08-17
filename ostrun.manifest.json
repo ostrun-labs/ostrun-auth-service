@@ -1,0 +1,60 @@
+{
+  "provider": "Ostrun",
+  "service": "auth",
+  "version": "0.1.0",
+  "displayName": "Ostrun Auth",
+  "description": "Service d'authentification de référence Ostrun : inscription et connexion par JWT.",
+  "repository": "https://github.com/Thykimik/ostrun-auth-service",
+  "registry": null,
+  "events": {
+    "published": [
+      "Ostrun.Auth.UserRegistered",
+      "Ostrun.Auth.UserLoggedIn"
+    ],
+    "consumed": []
+  },
+  "dependencies": [],
+  "env": [
+    {
+      "name": "ASPNETCORE_URLS",
+      "required": true,
+      "description": "URL(s) d'écoute Kestrel, ex. http://+:8080"
+    },
+    {
+      "name": "ConnectionStrings__Auth",
+      "required": true,
+      "description": "Chaîne de connexion PostgreSQL (Npgsql)"
+    },
+    {
+      "name": "Jwt__Secret",
+      "required": true,
+      "description": "Clé de signature des JWT (HMAC), à générer par instance"
+    },
+    {
+      "name": "Jwt__Issuer",
+      "required": true,
+      "description": "Émetteur (iss) des JWT"
+    },
+    {
+      "name": "Jwt__Audience",
+      "required": true,
+      "description": "Audience (aud) des JWT"
+    },
+    {
+      "name": "Jwt__ExpirationMinutes",
+      "required": false,
+      "description": "Durée de validité du token en minutes (défaut : 60)"
+    }
+  ],
+  "ports": [
+    {
+      "containerPort": 8080,
+      "protocol": "http",
+      "description": "API HTTP"
+    }
+  ],
+  "healthCheck": {
+    "path": "/health",
+    "method": "GET"
+  }
+}

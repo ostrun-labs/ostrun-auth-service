@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Thykimik/ostrun-auth-service/contracts/ostrun/auth/UserLoggedIn.v1.json",
+  "title": "Ostrun.Auth.UserLoggedIn",
+  "version": 1,
+  "description": "Publié quand un utilisateur se connecte avec succès sur le service Auth.",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifiant de l'utilisateur connecté"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Adresse email utilisée pour la connexion"
+    },
+    "loggedInAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Horodatage UTC de la connexion (ISO 8601)"
+    }
+  },
+  "required": ["userId", "email", "loggedInAt"],
+  "additionalProperties": false
+}
