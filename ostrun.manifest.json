@@ -7,6 +7,7 @@
   "repository": "https://github.com/Thykimik/ostrun-auth-service",
   "registry": null,
   "needs_db": true,
+  "basePath": "/auth",
   "events": {
     "published": [
       "Ostrun.Auth.UserRegistered",
