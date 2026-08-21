@@ -6,6 +6,7 @@
   "description": "Service d'authentification de référence Ostrun : inscription et connexion par JWT.",
   "repository": "https://github.com/Thykimik/ostrun-auth-service",
   "registry": null,
+  "needs_db": true,
   "events": {
     "published": [
       "Ostrun.Auth.UserRegistered",
@@ -44,6 +45,11 @@
       "name": "Jwt__ExpirationMinutes",
       "required": false,
       "description": "Durée de validité du token en minutes (défaut : 60)"
+    },
+    {
+      "name": "Events__Subscriptions",
+      "required": false,
+      "description": "Tableau JSON d'abonnés HTTP ({event, url}) pour la publication best-effort des événements (défaut : aucun)"
     }
   ],
   "ports": [

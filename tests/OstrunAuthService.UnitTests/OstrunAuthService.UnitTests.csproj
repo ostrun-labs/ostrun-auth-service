@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\OstrunAuthService.Application\OstrunAuthService.Application.csproj" />
     <ProjectReference Include="..\..\src\OstrunAuthService.Domain\OstrunAuthService.Domain.csproj" />
+    <ProjectReference Include="..\..\src\OstrunAuthService.Infrastructure\OstrunAuthService.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

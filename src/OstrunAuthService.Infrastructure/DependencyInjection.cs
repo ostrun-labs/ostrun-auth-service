@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OstrunAuthService.Application.Abstractions;
 using OstrunAuthService.Application.Auth;
 using OstrunAuthService.Infrastructure.Events;
@@ -21,10 +22,17 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddHttpClient(HttpEventPublisher.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(5));
+
+        var subscriptions = EventSubscriptionsParser.Parse(configuration["Events:Subscriptions"]);
+
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-        services.AddScoped<IEventPublisher, LoggingEventPublisher>();
+        services.AddScoped<IEventPublisher>(sp => new HttpEventPublisher(
+            sp.GetRequiredService<IHttpClientFactory>(),
+            subscriptions,
+            sp.GetRequiredService<ILogger<HttpEventPublisher>>()));
         services.AddScoped<AuthService>();
 
         return services;
