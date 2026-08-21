@@ -6,7 +6,7 @@
   "description": "Service d'authentification de référence Ostrun : inscription et connexion par JWT.",
   "repository": "https://github.com/Thykimik/ostrun-auth-service",
   "registry": null,
-  "needs_db": true,
+  "needsDb": true,
   "basePath": "/auth",
   "events": {
     "published": [
