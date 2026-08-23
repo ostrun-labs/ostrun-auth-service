@@ -48,9 +48,24 @@
       "description": "Durée de validité du token en minutes (défaut : 60)"
     },
     {
-      "name": "Events__Subscriptions",
+      "name": "RabbitMq__Host",
       "required": false,
-      "description": "Tableau JSON d'abonnés HTTP ({event, url}) pour la publication best-effort des événements (défaut : aucun)"
+      "description": "Hôte RabbitMQ. Absent : publication des événements en transport in-memory (pas de broker requis en standalone)"
+    },
+    {
+      "name": "RabbitMq__VirtualHost",
+      "required": false,
+      "description": "Virtual host RabbitMQ (défaut : /)"
+    },
+    {
+      "name": "RabbitMq__Username",
+      "required": false,
+      "description": "Utilisateur RabbitMQ (défaut : guest)"
+    },
+    {
+      "name": "RabbitMq__Password",
+      "required": false,
+      "description": "Mot de passe RabbitMQ (défaut : guest)"
     }
   ],
   "ports": [

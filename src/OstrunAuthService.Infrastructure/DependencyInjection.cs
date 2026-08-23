@@ -1,7 +1,7 @@
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using OstrunAuthService.Application.Abstractions;
 using OstrunAuthService.Application.Auth;
 using OstrunAuthService.Infrastructure.Events;
@@ -22,17 +22,62 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddHttpClient(HttpEventPublisher.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(5));
+        var rabbitMq = configuration.GetSection(RabbitMqOptions.SectionName).Get<RabbitMqOptions>()
+            ?? new RabbitMqOptions();
 
-        var subscriptions = EventSubscriptionsParser.Parse(configuration["Events:Subscriptions"]);
+        services.AddMassTransit(x =>
+        {
+            x.SetKebabCaseEndpointNameFormatter();
+
+            if (!string.IsNullOrWhiteSpace(rabbitMq.Host))
+            {
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(rabbitMq.Host, rabbitMq.VirtualHost, h =>
+                    {
+                        h.Username(rabbitMq.Username);
+                        h.Password(rabbitMq.Password);
+                    });
+
+                    // Plain JSON on the wire, no MassTransit envelope: the
+                    // envelope embeds the publisher's CLR type URN
+                    // (OstrunAuthService.Infrastructure.Events:UserRegistered),
+                    // which a consumer's differently-named local type — by
+                    // design, see brainstorm/to_think_about.md — can never
+                    // match. AnyMessageType additionally drops the
+                    // MT-MessageType transport header the raw serializer
+                    // still stamps by default, which a consumer otherwise
+                    // still uses to reject a structurally-identical message
+                    // from a differently-named type (observed during the
+                    // spike — it landed in RabbitMQ's default "_skipped"
+                    // queue with the payload intact but unrouted). Raw JSON
+                    // also interops with a future non-.NET consumer with no
+                    // MassTransit dependency at all.
+                    cfg.UseRawJsonSerializer(RawSerializerOptions.AnyMessageType | RawSerializerOptions.AddTransportHeaders | RawSerializerOptions.CopyHeaders);
+
+                    // Exchange names are forced to the Ostrun contract name
+                    // (ostrun/contracts/ostrun/auth/*.v1.json) instead of the
+                    // CLR type name, so a consumer in any stack can bind to
+                    // it without sharing this type.
+                    cfg.Message<UserRegistered>(m => m.SetEntityName("Ostrun.Auth.UserRegistered"));
+                    cfg.Message<UserLoggedIn>(m => m.SetEntityName("Ostrun.Auth.UserLoggedIn"));
+
+                    cfg.ConfigureEndpoints(context);
+                });
+            }
+            else
+            {
+                // Standalone dev default: no RabbitMq:Host configured, so this
+                // service still runs alone with no broker (see
+                // ostrun/brainstorm/to_think_about.md).
+                x.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context));
+            }
+        });
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-        services.AddScoped<IEventPublisher>(sp => new HttpEventPublisher(
-            sp.GetRequiredService<IHttpClientFactory>(),
-            subscriptions,
-            sp.GetRequiredService<ILogger<HttpEventPublisher>>()));
+        services.AddScoped<IEventPublisher, MassTransitEventPublisher>();
         services.AddScoped<AuthService>();
 
         return services;
