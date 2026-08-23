@@ -3,7 +3,6 @@ using OstrunAuthService.Application.Abstractions;
 using OstrunAuthService.Application.Auth;
 using OstrunAuthService.Application.Exceptions;
 using OstrunAuthService.Domain.Entities;
-using Xunit;
 
 namespace OstrunAuthService.UnitTests.Auth;
 

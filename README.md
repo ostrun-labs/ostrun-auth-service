@@ -24,7 +24,7 @@ Clean Architecture légère en 4 couches :
 
 - `src/OstrunAuthService.Domain` — entité `User`, aucune dépendance
 - `src/OstrunAuthService.Application` — cas d'usage register/login, interfaces (repository, hasher, JWT, events)
-- `src/OstrunAuthService.Infrastructure` — EF Core + Npgsql, hashing, génération JWT, publication d'events (stub loggé, aucun broker choisi pour l'instant)
+- `src/OstrunAuthService.Infrastructure` — EF Core + Npgsql, hashing, génération JWT, publication d'events via MassTransit + RabbitMQ (transport in-memory si `RabbitMq__Host` est absent)
 - `src/OstrunAuthService.Api` — Minimal APIs .NET 8 (`/auth/register`, `/auth/login`, `/health`)
 - `tests/OstrunAuthService.UnitTests` — tests unitaires de la couche Application
 
