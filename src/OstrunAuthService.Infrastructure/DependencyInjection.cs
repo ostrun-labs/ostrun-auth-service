@@ -39,17 +39,16 @@ public static class DependencyInjection
                         h.Password(rabbitMq.Password);
                     });
 
-                    // Plain JSON on the wire, no MassTransit envelope: the
+                    // Plain JSON on the wire, no MassTransit envelope. The
                     // envelope embeds the publisher's CLR type URN
                     // (OstrunAuthService.Infrastructure.Events:UserRegistered),
-                    // which a consumer's differently-named local type — by
-                    // design, see brainstorm/to_think_about.md — can never
-                    // match. AnyMessageType additionally drops the
-                    // MT-MessageType transport header the raw serializer
-                    // still stamps by default, which a consumer otherwise
-                    // still uses to reject a structurally-identical message
-                    // from a differently-named type (observed during the
-                    // spike — it landed in RabbitMQ's default "_skipped"
+                    // which a consumer's differently-named local type can
+                    // never match, by design. AnyMessageType additionally
+                    // drops the MT-MessageType transport header the raw
+                    // serializer still stamps by default, which a consumer
+                    // otherwise still uses to reject a structurally-identical
+                    // message from a differently-named type (observed during
+                    // the spike: it landed in RabbitMQ's default "_skipped"
                     // queue with the payload intact but unrouted). Raw JSON
                     // also interops with a future non-.NET consumer with no
                     // MassTransit dependency at all.
@@ -68,8 +67,7 @@ public static class DependencyInjection
             else
             {
                 // Standalone dev default: no RabbitMq:Host configured, so this
-                // service still runs alone with no broker (see
-                // ostrun/brainstorm/to_think_about.md).
+                // service still runs alone with no broker.
                 x.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context));
             }
         });

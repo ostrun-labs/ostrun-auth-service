@@ -3,7 +3,7 @@
   "service": "auth",
   "version": "0.1.0",
   "displayName": "Ostrun Auth",
-  "description": "Service d'authentification de référence Ostrun : inscription et connexion par JWT.",
+  "description": "Ostrun reference authentication service: JWT registration and login.",
   "repository": "https://github.com/Thykimik/ostrun-auth-service",
   "registry": null,
   "needsDb": true,
@@ -20,59 +20,59 @@
     {
       "name": "ASPNETCORE_URLS",
       "required": true,
-      "description": "URL(s) d'écoute Kestrel, ex. http://+:8080"
+      "description": "Kestrel listen URL(s), e.g. http://+:8080"
     },
     {
       "name": "ConnectionStrings__Auth",
       "required": true,
-      "description": "Chaîne de connexion PostgreSQL (Npgsql)"
+      "description": "PostgreSQL connection string (Npgsql)"
     },
     {
       "name": "Jwt__Secret",
       "required": true,
-      "description": "Clé de signature des JWT (HMAC), à générer par instance"
+      "description": "JWT signing key (HMAC), generate one per instance"
     },
     {
       "name": "Jwt__Issuer",
       "required": true,
-      "description": "Émetteur (iss) des JWT"
+      "description": "JWT issuer (iss)"
     },
     {
       "name": "Jwt__Audience",
       "required": true,
-      "description": "Audience (aud) des JWT"
+      "description": "JWT audience (aud)"
     },
     {
       "name": "Jwt__ExpirationMinutes",
       "required": false,
-      "description": "Durée de validité du token en minutes (défaut : 60)"
+      "description": "Token validity in minutes (default: 60)"
     },
     {
       "name": "RabbitMq__Host",
       "required": false,
-      "description": "Hôte RabbitMQ. Absent : publication des événements en transport in-memory (pas de broker requis en standalone)"
+      "description": "RabbitMQ host. If absent, events publish over the in-memory transport (no broker required standalone)"
     },
     {
       "name": "RabbitMq__VirtualHost",
       "required": false,
-      "description": "Virtual host RabbitMQ (défaut : /)"
+      "description": "RabbitMQ virtual host (default: /)"
     },
     {
       "name": "RabbitMq__Username",
       "required": false,
-      "description": "Utilisateur RabbitMQ (défaut : guest)"
+      "description": "RabbitMQ username (default: guest)"
     },
     {
       "name": "RabbitMq__Password",
       "required": false,
-      "description": "Mot de passe RabbitMQ (défaut : guest)"
+      "description": "RabbitMQ password (default: guest)"
     }
   ],
   "ports": [
     {
       "containerPort": 8080,
       "protocol": "http",
-      "description": "API HTTP"
+      "description": "HTTP API"
     }
   ],
   "healthCheck": {

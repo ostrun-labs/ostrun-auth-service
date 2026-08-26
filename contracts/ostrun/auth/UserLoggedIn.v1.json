@@ -3,23 +3,23 @@
   "$id": "https://github.com/Thykimik/ostrun-auth-service/contracts/ostrun/auth/UserLoggedIn.v1.json",
   "title": "Ostrun.Auth.UserLoggedIn",
   "version": 1,
-  "description": "Publié quand un utilisateur se connecte avec succès sur le service Auth.",
+  "description": "Published when a user successfully logs in on the Auth service.",
   "type": "object",
   "properties": {
     "userId": {
       "type": "string",
       "format": "uuid",
-      "description": "Identifiant de l'utilisateur connecté"
+      "description": "Identifier of the logged-in user"
     },
     "email": {
       "type": "string",
       "format": "email",
-      "description": "Adresse email utilisée pour la connexion"
+      "description": "Email address used to log in"
     },
     "loggedInAt": {
       "type": "string",
       "format": "date-time",
-      "description": "Horodatage UTC de la connexion (ISO 8601)"
+      "description": "UTC timestamp of the login (ISO 8601)"
     }
   },
   "required": ["userId", "email", "loggedInAt"],
