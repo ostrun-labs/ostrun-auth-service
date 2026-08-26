@@ -1,43 +1,43 @@
 # ostrun-auth-service
 
-Service Auth de référence pour [Ostrun](https://github.com/Thykimik/ostrun) — provider `Ostrun`, service `auth`.
+Reference Auth service for [Ostrun](https://github.com/Thykimik/ostrun), provider `Ostrun`, service `auth`.
 
-## Statut
+## Status
 
-Manifeste, contrats d'events et service .NET 8 (register/login JWT) écrits. Ce service est développé séparément du repo cœur d'Ostrun : Ostrun ne fait que le référencer (via son manifeste, `repository` + éventuellement `registry`) et le catalogue central pointe ici plutôt que d'héberger son code.
+Manifest, event contracts, and a .NET 8 service (register/login JWT) are written. This service is developed separately from Ostrun's core repo. Ostrun only references it (through its manifest, `repository` and optionally `registry`), and the central catalog points here instead of hosting its code.
 
-## Rôle
+## Role
 
-- Gestion des comptes, sessions, JWT (register/login)
-- Publie les events `Ostrun.Auth.UserRegistered`, `Ostrun.Auth.UserLoggedIn`
-- Fait partie de la sélection par défaut du catalogue Ostrun, mais reste un service indépendant et remplaçable (d'autres providers Auth pourront apparaître au catalogue)
+- Account, session, and JWT management (register/login)
+- Publishes the `Ostrun.Auth.UserRegistered` and `Ostrun.Auth.UserLoggedIn` events
+- Part of the Ostrun catalog's default selection, but remains an independent, replaceable service (other Auth providers may appear in the catalog)
 
-## Indépendance
+## Independence
 
-- Sa propre base de données / son propre schéma (PostgreSQL)
-- Son propre `Dockerfile`, déployable seul
-- Communication uniquement via API ou events — jamais d'appel direct à un autre service
+- Its own database and schema (PostgreSQL)
+- Its own `Dockerfile`, deployable standalone
+- Communication only via API or events, never a direct call into another service
 
 ## Architecture
 
-Clean Architecture légère en 4 couches :
+Light Clean Architecture in 4 layers:
 
-- `src/OstrunAuthService.Domain` — entité `User`, aucune dépendance
-- `src/OstrunAuthService.Application` — cas d'usage register/login, interfaces (repository, hasher, JWT, events)
-- `src/OstrunAuthService.Infrastructure` — EF Core + Npgsql, hashing, génération JWT, publication d'events via MassTransit + RabbitMQ (transport in-memory si `RabbitMq__Host` est absent)
-- `src/OstrunAuthService.Api` — Minimal APIs .NET 8 (`/auth/register`, `/auth/login`, `/health`)
-- `tests/OstrunAuthService.UnitTests` — tests unitaires de la couche Application
+- `src/OstrunAuthService.Domain`: the `User` entity, no dependencies
+- `src/OstrunAuthService.Application`: register/login use cases, interfaces (repository, hasher, JWT, events)
+- `src/OstrunAuthService.Infrastructure`: EF Core + Npgsql, hashing, JWT generation, event publishing via MassTransit + RabbitMQ (in-memory transport if `RabbitMq__Host` is absent)
+- `src/OstrunAuthService.Api`: .NET 8 Minimal APIs (`/auth/register`, `/auth/login`, `/health`)
+- `tests/OstrunAuthService.UnitTests`: unit tests for the Application layer
 
-## Lancer en local
+## Running locally
 
 ```bash
-cp .env.example .env   # ajuster JWT_SECRET notamment
+cp .env.example .env   # adjust JWT_SECRET in particular
 docker compose up --build
 ```
 
-L'API écoute sur `http://localhost:8080` (`/health`, `/auth/register`, `/auth/login`). Les migrations EF Core sont appliquées automatiquement au démarrage.
+The API listens on `http://localhost:8080` (`/health`, `/auth/register`, `/auth/login`). EF Core migrations apply automatically on startup.
 
-## Développement
+## Development
 
 ```bash
 dotnet build
