@@ -1,6 +1,6 @@
 # ostrun-auth-service
 
-Reference Auth service for [Ostrun](https://github.com/Thykimik/ostrun), provider `Ostrun`, service `auth`.
+Reference Auth service for [Ostrun](https://github.com/ostrun-labs/ostrun), provider `Ostrun`, service `auth`.
 
 ## Status
 
