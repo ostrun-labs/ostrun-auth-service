@@ -12,12 +12,14 @@ public sealed class AuthService(
 {
     public async Task<RegisterUserResult> RegisterAsync(RegisterUserRequest request, CancellationToken cancellationToken)
     {
-        if (await userRepository.ExistsByEmailAsync(request.Email, cancellationToken))
+        var email = NormalizeEmail(request.Email);
+
+        if (await userRepository.ExistsByEmailAsync(email, cancellationToken))
         {
-            throw new EmailAlreadyRegisteredException(request.Email);
+            throw new EmailAlreadyRegisteredException(email);
         }
 
-        var user = new User(Guid.NewGuid(), request.Email, passwordHasher.Hash(request.Password), DateTime.UtcNow);
+        var user = new User(Guid.NewGuid(), email, passwordHasher.Hash(request.Password), DateTime.UtcNow);
 
         await userRepository.AddAsync(user, cancellationToken);
         await eventPublisher.PublishUserRegisteredAsync(user, cancellationToken);
@@ -27,7 +29,7 @@ public sealed class AuthService(
 
     public async Task<LoginUserResult> LoginAsync(LoginUserRequest request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
+        var user = await userRepository.GetByEmailAsync(NormalizeEmail(request.Email), cancellationToken);
         if (user is null || !passwordHasher.Verify(user.PasswordHash, request.Password))
         {
             throw new InvalidCredentialsException();
@@ -38,4 +40,8 @@ public sealed class AuthService(
 
         return new LoginUserResult(token.Value, token.ExpiresAtUtc);
     }
+
+    // Emails are stored lowercased so the unique index on users.Email also
+    // rejects case variants of an existing address.
+    private static string NormalizeEmail(string email) => email.ToLowerInvariant();
 }
