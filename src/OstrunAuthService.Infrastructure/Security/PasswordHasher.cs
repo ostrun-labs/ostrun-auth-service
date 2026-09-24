@@ -15,5 +15,9 @@ public sealed class PasswordHasher : IPasswordHasher
     public bool Verify(string passwordHash, string providedPassword) =>
         _inner.VerifyHashedPassword(PlaceholderUser, passwordHash, providedPassword) != PasswordVerificationResult.Failed;
 
+    public void SimulateVerify(string providedPassword) => Verify(_dummyHash.Value, providedPassword);
+
     private static readonly User PlaceholderUser = new(Guid.Empty, string.Empty, string.Empty, DateTime.MinValue);
+
+    private readonly Lazy<string> _dummyHash = new(() => new PasswordHasher<User>().HashPassword(PlaceholderUser, Guid.NewGuid().ToString()));
 }
