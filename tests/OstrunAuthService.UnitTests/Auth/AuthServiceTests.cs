@@ -90,6 +90,8 @@ public class AuthServiceTests
 
         await Assert.ThrowsAsync<InvalidCredentialsException>(() =>
             _sut.LoginAsync(new LoginUserRequest("missing@ostrun.dev", "Password123!"), CancellationToken.None));
+
+        _passwordHasher.Received(1).SimulateVerify("Password123!");
     }
 
     [Fact]

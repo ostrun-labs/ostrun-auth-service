@@ -23,7 +23,13 @@ public sealed class AuthService(
     public async Task<LoginUserResult> LoginAsync(LoginUserRequest request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetByEmailAsync(NormalizeEmail(request.Email), cancellationToken);
-        if (user is null || !passwordHasher.Verify(user.PasswordHash, request.Password))
+        if (user is null)
+        {
+            passwordHasher.SimulateVerify(request.Password);
+            throw new InvalidCredentialsException();
+        }
+
+        if (!passwordHasher.Verify(user.PasswordHash, request.Password))
         {
             throw new InvalidCredentialsException();
         }
