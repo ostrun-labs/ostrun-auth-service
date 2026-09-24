@@ -30,7 +30,7 @@
     {
       "name": "Jwt__Secret",
       "required": true,
-      "description": "JWT signing key (HMAC), generate one per instance"
+      "description": "JWT signing key (HMAC, at least 32 characters), generate one per instance"
     },
     {
       "name": "Jwt__Issuer",
