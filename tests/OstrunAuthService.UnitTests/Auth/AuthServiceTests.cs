@@ -35,6 +35,30 @@ public class AuthServiceTests
     }
 
     [Fact]
+    public async Task RegisterAsync_StoresEmailLowercased()
+    {
+        _passwordHasher.Hash("Password123!").Returns("hashed-password");
+
+        var result = await _sut.RegisterAsync(new RegisterUserRequest("New@Ostrun.DEV", "Password123!"), CancellationToken.None);
+
+        Assert.Equal("new@ostrun.dev", result.Email);
+        await _userRepository.Received(1).AddAsync(Arg.Is<User>(u => u.Email == "new@ostrun.dev"), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task LoginAsync_LooksUpEmailLowercased()
+    {
+        var user = new User(Guid.NewGuid(), "user@ostrun.dev", "hashed-password", DateTime.UtcNow);
+        _userRepository.GetByEmailAsync("user@ostrun.dev", Arg.Any<CancellationToken>()).Returns(user);
+        _passwordHasher.Verify("hashed-password", "Password123!").Returns(true);
+        _jwtTokenGenerator.Generate(user).Returns(new JwtToken("signed-jwt", DateTime.UtcNow.AddHours(1)));
+
+        var result = await _sut.LoginAsync(new LoginUserRequest("USER@Ostrun.dev", "Password123!"), CancellationToken.None);
+
+        Assert.Equal("signed-jwt", result.Token);
+    }
+
+    [Fact]
     public async Task RegisterAsync_WithExistingEmail_ThrowsEmailAlreadyRegistered()
     {
         _userRepository.ExistsByEmailAsync("taken@ostrun.dev", Arg.Any<CancellationToken>()).Returns(true);
