@@ -22,7 +22,6 @@ public class AuthServiceTests
     [Fact]
     public async Task RegisterAsync_WithNewEmail_CreatesUserAndPublishesEvent()
     {
-        _userRepository.ExistsByEmailAsync("new@ostrun.dev", Arg.Any<CancellationToken>()).Returns(false);
         _passwordHasher.Hash("Password123!").Returns("hashed-password");
 
         var result = await _sut.RegisterAsync(new RegisterUserRequest("new@ostrun.dev", "Password123!"), CancellationToken.None);
@@ -61,12 +60,13 @@ public class AuthServiceTests
     [Fact]
     public async Task RegisterAsync_WithExistingEmail_ThrowsEmailAlreadyRegistered()
     {
-        _userRepository.ExistsByEmailAsync("taken@ostrun.dev", Arg.Any<CancellationToken>()).Returns(true);
+        _userRepository.AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromException(new EmailAlreadyRegisteredException("taken@ostrun.dev")));
 
         await Assert.ThrowsAsync<EmailAlreadyRegisteredException>(() =>
             _sut.RegisterAsync(new RegisterUserRequest("taken@ostrun.dev", "Password123!"), CancellationToken.None));
 
-        await _userRepository.DidNotReceive().AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
+        await _eventPublisher.DidNotReceive().PublishUserRegisteredAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
