@@ -1,4 +1,4 @@
-using OstrunAuthService.Application.Abstractions;
+﻿using OstrunAuthService.Application.Abstractions;
 using OstrunAuthService.Application.Exceptions;
 using OstrunAuthService.Domain.Entities;
 
@@ -12,14 +12,7 @@ public sealed class AuthService(
 {
     public async Task<RegisterUserResult> RegisterAsync(RegisterUserRequest request, CancellationToken cancellationToken)
     {
-        var email = NormalizeEmail(request.Email);
-
-        if (await userRepository.ExistsByEmailAsync(email, cancellationToken))
-        {
-            throw new EmailAlreadyRegisteredException(email);
-        }
-
-        var user = new User(Guid.NewGuid(), email, passwordHasher.Hash(request.Password), DateTime.UtcNow);
+        var user = new User(Guid.NewGuid(), NormalizeEmail(request.Email), passwordHasher.Hash(request.Password), DateTime.UtcNow);
 
         await userRepository.AddAsync(user, cancellationToken);
         await eventPublisher.PublishUserRegisteredAsync(user, cancellationToken);
