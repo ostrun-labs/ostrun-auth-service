@@ -12,25 +12,28 @@ public class AuthServiceTests
     private readonly IPasswordHasher _passwordHasher = Substitute.For<IPasswordHasher>();
     private readonly IJwtTokenGenerator _jwtTokenGenerator = Substitute.For<IJwtTokenGenerator>();
     private readonly IEventPublisher _eventPublisher = Substitute.For<IEventPublisher>();
+    private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly AuthService _sut;
 
     public AuthServiceTests()
     {
-        _sut = new AuthService(_userRepository, _passwordHasher, _jwtTokenGenerator, _eventPublisher);
+        _sut = new AuthService(_userRepository, _passwordHasher, _jwtTokenGenerator, _eventPublisher, _unitOfWork);
     }
 
     [Fact]
-    public async Task RegisterAsync_WithNewEmail_CreatesUserAndPublishesEvent()
+    public async Task RegisterAsync_WithNewEmail_CommitsUserAndEventTogether()
     {
         _passwordHasher.Hash("Password123!").Returns("hashed-password");
 
         var result = await _sut.RegisterAsync(new RegisterUserRequest("new@ostrun.dev", "Password123!"), CancellationToken.None);
 
         Assert.Equal("new@ostrun.dev", result.Email);
-        await _userRepository.Received(1).AddAsync(
-            Arg.Is<User>(u => u.Email == "new@ostrun.dev" && u.PasswordHash == "hashed-password"),
-            Arg.Any<CancellationToken>());
-        await _eventPublisher.Received(1).PublishUserRegisteredAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
+        Received.InOrder(() =>
+        {
+            _userRepository.Add(Arg.Is<User>(u => u.Email == "new@ostrun.dev" && u.PasswordHash == "hashed-password"));
+            _eventPublisher.PublishUserRegisteredAsync(Arg.Is<User>(u => u.Id == result.UserId), Arg.Any<CancellationToken>());
+            _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>());
+        });
     }
 
     [Fact]
@@ -41,7 +44,7 @@ public class AuthServiceTests
         var result = await _sut.RegisterAsync(new RegisterUserRequest("New@Ostrun.DEV", "Password123!"), CancellationToken.None);
 
         Assert.Equal("new@ostrun.dev", result.Email);
-        await _userRepository.Received(1).AddAsync(Arg.Is<User>(u => u.Email == "new@ostrun.dev"), Arg.Any<CancellationToken>());
+        _userRepository.Received(1).Add(Arg.Is<User>(u => u.Email == "new@ostrun.dev"));
     }
 
     [Fact]
@@ -60,13 +63,11 @@ public class AuthServiceTests
     [Fact]
     public async Task RegisterAsync_WithExistingEmail_ThrowsEmailAlreadyRegistered()
     {
-        _userRepository.AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>())
+        _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>())
             .Returns(Task.FromException(new EmailAlreadyRegisteredException("taken@ostrun.dev")));
 
         await Assert.ThrowsAsync<EmailAlreadyRegisteredException>(() =>
             _sut.RegisterAsync(new RegisterUserRequest("taken@ostrun.dev", "Password123!"), CancellationToken.None));
-
-        await _eventPublisher.DidNotReceive().PublishUserRegisteredAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -80,7 +81,11 @@ public class AuthServiceTests
         var result = await _sut.LoginAsync(new LoginUserRequest("user@ostrun.dev", "Password123!"), CancellationToken.None);
 
         Assert.Equal("signed-jwt", result.Token);
-        await _eventPublisher.Received(1).PublishUserLoggedInAsync(user, Arg.Any<CancellationToken>());
+        Received.InOrder(() =>
+        {
+            _eventPublisher.PublishUserLoggedInAsync(user, Arg.Any<CancellationToken>());
+            _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>());
+        });
     }
 
     [Fact]

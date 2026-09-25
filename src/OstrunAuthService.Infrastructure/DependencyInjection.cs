@@ -29,6 +29,16 @@ public static class DependencyInjection
         {
             x.SetKebabCaseEndpointNameFormatter();
 
+            // Publishes are written to the outbox tables on the next
+            // AuthDbContext.SaveChangesAsync and sent to the broker by a
+            // background delivery service, so an event is never lost when the
+            // broker is down and never sent for a rolled-back transaction.
+            x.AddEntityFrameworkOutbox<AuthDbContext>(o =>
+            {
+                o.UsePostgres();
+                o.UseBusOutbox();
+            });
+
             if (!string.IsNullOrWhiteSpace(rabbitMq.Host))
             {
                 x.UsingRabbitMq((context, cfg) =>
@@ -73,6 +83,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IEventPublisher, MassTransitEventPublisher>();
