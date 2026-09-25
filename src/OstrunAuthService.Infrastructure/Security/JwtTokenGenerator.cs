@@ -1,6 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OstrunAuthService.Application.Abstractions;
@@ -8,7 +7,7 @@ using OstrunAuthService.Domain.Entities;
 
 namespace OstrunAuthService.Infrastructure.Security;
 
-public sealed class JwtTokenGenerator(IOptions<JwtSettings> options) : IJwtTokenGenerator
+public sealed class JwtTokenGenerator(IOptions<JwtSettings> options, JwtSigningKey signingKey) : IJwtTokenGenerator
 {
     private readonly JwtSettings _settings = options.Value;
 
@@ -23,15 +22,12 @@ public sealed class JwtTokenGenerator(IOptions<JwtSettings> options) : IJwtToken
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 
-        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Secret));
-        var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
-
         var token = new JwtSecurityToken(
             issuer: _settings.Issuer,
             audience: _settings.Audience,
             claims: claims,
             expires: expiresAtUtc,
-            signingCredentials: credentials);
+            signingCredentials: new SigningCredentials(signingKey.PrivateKey, JwtSigningKey.Algorithm));
 
         return new JwtToken(new JwtSecurityTokenHandler().WriteToken(token), expiresAtUtc);
     }
