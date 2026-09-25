@@ -8,14 +8,16 @@ public sealed class AuthService(
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
     IJwtTokenGenerator jwtTokenGenerator,
-    IEventPublisher eventPublisher)
+    IEventPublisher eventPublisher,
+    IUnitOfWork unitOfWork)
 {
     public async Task<RegisterUserResult> RegisterAsync(RegisterUserRequest request, CancellationToken cancellationToken)
     {
         var user = new User(Guid.NewGuid(), NormalizeEmail(request.Email), passwordHasher.Hash(request.Password), DateTime.UtcNow);
 
-        await userRepository.AddAsync(user, cancellationToken);
+        userRepository.Add(user);
         await eventPublisher.PublishUserRegisteredAsync(user, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new RegisterUserResult(user.Id, user.Email);
     }
@@ -36,6 +38,7 @@ public sealed class AuthService(
 
         var token = jwtTokenGenerator.Generate(user);
         await eventPublisher.PublishUserLoggedInAsync(user, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new LoginUserResult(token.Value, token.ExpiresAtUtc);
     }

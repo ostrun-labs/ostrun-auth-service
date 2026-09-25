@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using OstrunAuthService.Domain.Entities;
 
@@ -18,5 +19,11 @@ public sealed class AuthDbContext(DbContextOptions<AuthDbContext> options) : DbC
             entity.Property(u => u.PasswordHash).IsRequired();
             entity.Property(u => u.CreatedAt).IsRequired();
         });
+
+        // MassTransit transactional outbox: published events are saved here in
+        // the same transaction as the entities, then delivered to the broker.
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
+        modelBuilder.AddOutboxStateEntity();
     }
 }
