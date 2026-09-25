@@ -28,9 +28,9 @@
       "description": "PostgreSQL connection string (Npgsql)"
     },
     {
-      "name": "Jwt__Secret",
+      "name": "Jwt__SigningKey",
       "required": true,
-      "description": "JWT signing key (HMAC, at least 32 characters), generate one per instance"
+      "description": "RSA private key (2048+ bits) as base64-encoded PEM, generate one per instance. Its public half is served at /auth/.well-known/jwks.json"
     },
     {
       "name": "Jwt__Issuer",

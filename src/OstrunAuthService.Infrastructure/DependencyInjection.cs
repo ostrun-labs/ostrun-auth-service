@@ -2,6 +2,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using OstrunAuthService.Application.Abstractions;
 using OstrunAuthService.Application.Auth;
 using OstrunAuthService.Infrastructure.Events;
@@ -85,6 +86,7 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton(sp => JwtSigningKey.FromBase64Pem(sp.GetRequiredService<IOptions<JwtSettings>>().Value.SigningKey));
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IEventPublisher, MassTransitEventPublisher>();
         services.AddScoped<AuthService>();

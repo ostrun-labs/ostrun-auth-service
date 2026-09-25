@@ -1,31 +1,35 @@
-using System.Text;
 using HealthChecks.NpgSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using OstrunAuthService.Api;
 using OstrunAuthService.Api.Endpoints;
 using OstrunAuthService.Infrastructure;
 using OstrunAuthService.Infrastructure.Persistence;
+using OstrunAuthService.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
-var jwtSection = builder.Configuration.GetSection("Jwt");
-
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+    .AddJwtBearer();
+
+builder.Services
+    .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtSettings>, JwtSigningKey>((options, settings, signingKey) =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = jwtSection["Issuer"],
+            ValidIssuer = settings.Value.Issuer,
             ValidateAudience = true,
-            ValidAudience = jwtSection["Audience"],
+            ValidAudience = settings.Value.Audience,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Secret"] ?? string.Empty)),
+            IssuerSigningKey = signingKey.PublicKey,
+            ValidAlgorithms = [JwtSigningKey.Algorithm],
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromSeconds(30),
         };
@@ -60,5 +64,6 @@ app.UseAuthorization();
 
 app.MapHealthChecks("/health");
 app.MapAuthEndpoints();
+app.MapJwksEndpoint();
 
 app.Run();

@@ -25,17 +25,17 @@ Light Clean Architecture in 4 layers:
 - `src/OstrunAuthService.Domain`: the `User` entity, no dependencies
 - `src/OstrunAuthService.Application`: register/login use cases, interfaces (repository, hasher, JWT, events)
 - `src/OstrunAuthService.Infrastructure`: EF Core + Npgsql, hashing, JWT generation, event publishing via MassTransit + RabbitMQ (in-memory transport if `RabbitMq__Host` is absent)
-- `src/OstrunAuthService.Api`: .NET 8 Minimal APIs (`/auth/register`, `/auth/login`, `/health`)
+- `src/OstrunAuthService.Api`: .NET 8 Minimal APIs (`/auth/register`, `/auth/login`, `/auth/.well-known/jwks.json`, `/health`)
 - `tests/OstrunAuthService.UnitTests`: unit tests for the Application layer
 
 ## Running locally
 
 ```bash
-cp .env.example .env   # adjust JWT_SECRET in particular
+cp .env.example .env   # then set JWT_SIGNING_KEY (see the command in .env.example)
 docker compose up --build
 ```
 
-The API listens on `http://localhost:8080` (`/health`, `/auth/register`, `/auth/login`). EF Core migrations apply automatically on startup.
+The API listens on `http://localhost:8080` (`/health`, `/auth/register`, `/auth/login`, `/auth/.well-known/jwks.json`). EF Core migrations apply automatically on startup.
 
 ## Development
 
