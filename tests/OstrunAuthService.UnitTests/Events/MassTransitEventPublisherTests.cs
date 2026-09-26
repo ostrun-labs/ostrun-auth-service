@@ -20,7 +20,7 @@ public class MassTransitEventPublisherTests
 
         using var scope = provider.CreateScope();
         var sut = new MassTransitEventPublisher(scope.ServiceProvider.GetRequiredService<IPublishEndpoint>());
-        var user = new User(Guid.NewGuid(), "new@ostrun.dev", "hashed", DateTime.UtcNow);
+        var user = User.RegisterWithPassword("new@ostrun.dev", "hashed", DateTime.UtcNow);
 
         await sut.PublishUserRegisteredAsync(user, CancellationToken.None);
 
@@ -43,7 +43,7 @@ public class MassTransitEventPublisherTests
 
         using var scope = provider.CreateScope();
         var sut = new MassTransitEventPublisher(scope.ServiceProvider.GetRequiredService<IPublishEndpoint>());
-        var user = new User(Guid.NewGuid(), "user@ostrun.dev", "hashed", DateTime.UtcNow);
+        var user = User.RegisterWithPassword("user@ostrun.dev", "hashed", DateTime.UtcNow);
 
         await sut.PublishUserLoggedInAsync(user, CancellationToken.None);
 

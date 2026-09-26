@@ -50,7 +50,7 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_LooksUpEmailLowercased()
     {
-        var user = new User(Guid.NewGuid(), "user@ostrun.dev", "hashed-password", DateTime.UtcNow);
+        var user = User.RegisterWithPassword("user@ostrun.dev", "hashed-password", DateTime.UtcNow);
         _userRepository.GetByEmailAsync("user@ostrun.dev", Arg.Any<CancellationToken>()).Returns(user);
         _passwordHasher.Verify("hashed-password", "Password123!").Returns(true);
         _jwtTokenGenerator.Generate(user).Returns(new JwtToken("signed-jwt", DateTime.UtcNow.AddHours(1)));
@@ -73,7 +73,7 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_WithValidCredentials_ReturnsToken()
     {
-        var user = new User(Guid.NewGuid(), "user@ostrun.dev", "hashed-password", DateTime.UtcNow);
+        var user = User.RegisterWithPassword("user@ostrun.dev", "hashed-password", DateTime.UtcNow);
         _userRepository.GetByEmailAsync("user@ostrun.dev", Arg.Any<CancellationToken>()).Returns(user);
         _passwordHasher.Verify("hashed-password", "Password123!").Returns(true);
         _jwtTokenGenerator.Generate(user).Returns(new JwtToken("signed-jwt", DateTime.UtcNow.AddHours(1)));
@@ -102,7 +102,7 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_WithWrongPassword_ThrowsInvalidCredentials()
     {
-        var user = new User(Guid.NewGuid(), "user@ostrun.dev", "hashed-password", DateTime.UtcNow);
+        var user = User.RegisterWithPassword("user@ostrun.dev", "hashed-password", DateTime.UtcNow);
         _userRepository.GetByEmailAsync("user@ostrun.dev", Arg.Any<CancellationToken>()).Returns(user);
         _passwordHasher.Verify("hashed-password", "wrong-password").Returns(false);
 

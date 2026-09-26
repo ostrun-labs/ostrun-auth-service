@@ -13,7 +13,7 @@ public sealed class AuthService(
 {
     public async Task<RegisterUserResult> RegisterAsync(RegisterUserRequest request, CancellationToken cancellationToken)
     {
-        var user = new User(Guid.NewGuid(), NormalizeEmail(request.Email), passwordHasher.Hash(request.Password), DateTime.UtcNow);
+        var user = User.RegisterWithPassword(NormalizeEmail(request.Email), passwordHasher.Hash(request.Password), DateTime.UtcNow);
 
         userRepository.Add(user);
         await eventPublisher.PublishUserRegisteredAsync(user, cancellationToken);
@@ -25,7 +25,7 @@ public sealed class AuthService(
     public async Task<LoginUserResult> LoginAsync(LoginUserRequest request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetByEmailAsync(NormalizeEmail(request.Email), cancellationToken);
-        if (user is null)
+        if (user?.PasswordHash is null)
         {
             passwordHasher.SimulateVerify(request.Password);
             throw new InvalidCredentialsException();

@@ -22,7 +22,7 @@ Manifest, event contracts, and a .NET 8 service (register/login JWT) are written
 
 Light Clean Architecture in 4 layers:
 
-- `src/OstrunAuthService.Domain`: the `User` entity, no dependencies
+- `src/OstrunAuthService.Domain`: the `User` and `Account` entities (a user signs in through one or more accounts: password or social provider), no dependencies
 - `src/OstrunAuthService.Application`: register/login use cases, interfaces (repository, hasher, JWT, events)
 - `src/OstrunAuthService.Infrastructure`: EF Core + Npgsql, hashing, JWT generation, event publishing via MassTransit + RabbitMQ (in-memory transport if `RabbitMq__Host` is absent)
 - `src/OstrunAuthService.Api`: .NET 8 Minimal APIs (`/auth/register`, `/auth/login`, `/auth/.well-known/jwks.json`, `/health`)

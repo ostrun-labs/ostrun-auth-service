@@ -8,6 +8,8 @@ public sealed class AuthDbContext(DbContextOptions<AuthDbContext> options) : DbC
 {
     public DbSet<User> Users => Set<User>();
 
+    public DbSet<Account> Accounts => Set<Account>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>(entity =>
@@ -16,8 +18,21 @@ public sealed class AuthDbContext(DbContextOptions<AuthDbContext> options) : DbC
             entity.HasKey(u => u.Id);
             entity.Property(u => u.Email).IsRequired().HasMaxLength(320);
             entity.HasIndex(u => u.Email).IsUnique();
-            entity.Property(u => u.PasswordHash).IsRequired();
+            entity.Property(u => u.Name).HasMaxLength(256);
+            entity.Property(u => u.Image).HasMaxLength(2048);
             entity.Property(u => u.CreatedAt).IsRequired();
+            entity.Ignore(u => u.PasswordHash);
+            entity.HasMany(u => u.Accounts).WithOne().HasForeignKey(a => a.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Account>(entity =>
+        {
+            entity.ToTable("accounts");
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.ProviderId).IsRequired().HasMaxLength(64);
+            entity.Property(a => a.ProviderAccountId).IsRequired().HasMaxLength(256);
+            entity.HasIndex(a => new { a.ProviderId, a.ProviderAccountId }).IsUnique();
+            entity.Property(a => a.CreatedAt).IsRequired();
         });
 
         // MassTransit transactional outbox: published events are saved here in

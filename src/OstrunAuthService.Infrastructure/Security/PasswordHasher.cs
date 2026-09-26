@@ -1,15 +1,14 @@
 using Microsoft.AspNetCore.Identity;
 using OstrunAuthService.Application.Abstractions;
-using OstrunAuthService.Domain.Entities;
 
 namespace OstrunAuthService.Infrastructure.Security;
 
 public sealed class PasswordHasher : IPasswordHasher
 {
-    private readonly Microsoft.AspNetCore.Identity.PasswordHasher<User> _inner = new();
+    private readonly PasswordHasher<object> _inner = new();
 
     // ASP.NET Core Identity's hasher ignores the user argument for the default
-    // (v3) algorithm, so a placeholder instance avoids loading a real user here.
+    // (v3) algorithm, so a placeholder object stands in for it.
     public string Hash(string password) => _inner.HashPassword(PlaceholderUser, password);
 
     public bool Verify(string passwordHash, string providedPassword) =>
@@ -17,7 +16,7 @@ public sealed class PasswordHasher : IPasswordHasher
 
     public void SimulateVerify(string providedPassword) => Verify(_dummyHash.Value, providedPassword);
 
-    private static readonly User PlaceholderUser = new(Guid.Empty, string.Empty, string.Empty, DateTime.MinValue);
+    private static readonly object PlaceholderUser = new();
 
-    private readonly Lazy<string> _dummyHash = new(() => new PasswordHasher<User>().HashPassword(PlaceholderUser, Guid.NewGuid().ToString()));
+    private readonly Lazy<string> _dummyHash = new(() => new PasswordHasher<object>().HashPassword(PlaceholderUser, Guid.NewGuid().ToString()));
 }
