@@ -22,7 +22,7 @@ public sealed class AuthService(
         return new RegisterUserResult(user.Id, user.Email);
     }
 
-    public async Task<LoginUserResult> LoginAsync(LoginUserRequest request, CancellationToken cancellationToken)
+    public async Task<AccessTokenResult> LoginAsync(LoginUserRequest request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetByEmailAsync(NormalizeEmail(request.Email), cancellationToken);
         if (user?.PasswordHash is null)
@@ -40,7 +40,7 @@ public sealed class AuthService(
         await eventPublisher.PublishUserLoggedInAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new LoginUserResult(token.Value, token.ExpiresAtUtc);
+        return new AccessTokenResult(token.Value, token.ExpiresAtUtc);
     }
 
     // Emails are stored lowercased so the unique index on users.Email also
