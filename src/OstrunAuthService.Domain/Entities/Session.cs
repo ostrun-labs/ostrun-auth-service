@@ -42,6 +42,8 @@ public sealed class Session
         return (session, token);
     }
 
+    public bool IsActive(DateTime now) => ExpiresAt > now;
+
     public static string HashToken(string token) =>
         Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 }
