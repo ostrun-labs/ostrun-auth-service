@@ -21,7 +21,7 @@ public static partial class AuthEndpoints
             return Results.Created($"/auth/users/{result.UserId}", result);
         });
 
-        group.MapPost("/login", async (LoginUserRequest request, AuthService authService, CancellationToken cancellationToken) =>
+        group.MapPost("/login", async (LoginUserRequest request, AuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
             var validationError = Validate(request.Email, request.Password);
             if (validationError is not null)
@@ -29,11 +29,20 @@ public static partial class AuthEndpoints
                 return Results.ValidationProblem(validationError);
             }
 
-            var result = await authService.LoginAsync(request, cancellationToken);
-            return Results.Ok(result);
+            var outcome = await authService.LoginAsync(request, ClientInfoOf(httpContext), cancellationToken);
+            SessionCookie.Set(httpContext.Response, outcome.Session);
+            return Results.Ok(outcome.AccessToken);
         });
 
         return app;
+    }
+
+    private static ClientInfo ClientInfoOf(HttpContext httpContext)
+    {
+        var userAgent = httpContext.Request.Headers.UserAgent.ToString();
+        return new ClientInfo(
+            httpContext.Connection.RemoteIpAddress?.ToString(),
+            userAgent.Length == 0 ? null : userAgent[..Math.Min(userAgent.Length, 512)]);
     }
 
     private static Dictionary<string, string[]>? Validate(string email, string password)

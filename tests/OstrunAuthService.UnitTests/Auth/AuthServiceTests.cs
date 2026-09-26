@@ -9,15 +9,18 @@ namespace OstrunAuthService.UnitTests.Auth;
 public class AuthServiceTests
 {
     private readonly IUserRepository _userRepository = Substitute.For<IUserRepository>();
+    private readonly ISessionRepository _sessionRepository = Substitute.For<ISessionRepository>();
     private readonly IPasswordHasher _passwordHasher = Substitute.For<IPasswordHasher>();
     private readonly IJwtTokenGenerator _jwtTokenGenerator = Substitute.For<IJwtTokenGenerator>();
     private readonly IEventPublisher _eventPublisher = Substitute.For<IEventPublisher>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly AuthService _sut;
 
+    private static readonly ClientInfo Client = new("203.0.113.7", "test-agent");
+
     public AuthServiceTests()
     {
-        _sut = new AuthService(_userRepository, _passwordHasher, _jwtTokenGenerator, _eventPublisher, _unitOfWork);
+        _sut = new AuthService(_userRepository, _sessionRepository, _passwordHasher, _jwtTokenGenerator, _eventPublisher, _unitOfWork);
     }
 
     [Fact]
@@ -55,9 +58,9 @@ public class AuthServiceTests
         _passwordHasher.Verify("hashed-password", "Password123!").Returns(true);
         _jwtTokenGenerator.Generate(user).Returns(new JwtToken("signed-jwt", DateTime.UtcNow.AddHours(1)));
 
-        var result = await _sut.LoginAsync(new LoginUserRequest("USER@Ostrun.dev", "Password123!"), CancellationToken.None);
+        var result = await _sut.LoginAsync(new LoginUserRequest("USER@Ostrun.dev", "Password123!"), Client, CancellationToken.None);
 
-        Assert.Equal("signed-jwt", result.Token);
+        Assert.Equal("signed-jwt", result.AccessToken.Token);
     }
 
     [Fact]
@@ -71,21 +74,26 @@ public class AuthServiceTests
     }
 
     [Fact]
-    public async Task LoginAsync_WithValidCredentials_ReturnsToken()
+    public async Task LoginAsync_WithValidCredentials_StartsSessionAndReturnsToken()
     {
         var user = User.RegisterWithPassword("user@ostrun.dev", "hashed-password", DateTime.UtcNow);
         _userRepository.GetByEmailAsync("user@ostrun.dev", Arg.Any<CancellationToken>()).Returns(user);
         _passwordHasher.Verify("hashed-password", "Password123!").Returns(true);
         _jwtTokenGenerator.Generate(user).Returns(new JwtToken("signed-jwt", DateTime.UtcNow.AddHours(1)));
 
-        var result = await _sut.LoginAsync(new LoginUserRequest("user@ostrun.dev", "Password123!"), CancellationToken.None);
+        var result = await _sut.LoginAsync(new LoginUserRequest("user@ostrun.dev", "Password123!"), Client, CancellationToken.None);
 
-        Assert.Equal("signed-jwt", result.Token);
+        Assert.Equal("signed-jwt", result.AccessToken.Token);
+        var expectedHash = Session.HashToken(result.Session.Token);
         Received.InOrder(() =>
         {
+            _sessionRepository.Add(Arg.Is<Session>(s =>
+                s.UserId == user.Id && s.TokenHash == expectedHash && s.IpAddress == "203.0.113.7" && s.UserAgent == "test-agent"));
             _eventPublisher.PublishUserLoggedInAsync(user, Arg.Any<CancellationToken>());
             _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>());
         });
+        Assert.NotEqual(expectedHash, result.Session.Token);
+        Assert.InRange(result.Session.ExpiresAtUtc, DateTime.UtcNow.AddDays(7).AddMinutes(-1), DateTime.UtcNow.AddDays(7));
     }
 
     [Fact]
@@ -94,7 +102,7 @@ public class AuthServiceTests
         _userRepository.GetByEmailAsync("missing@ostrun.dev", Arg.Any<CancellationToken>()).Returns((User?)null);
 
         await Assert.ThrowsAsync<InvalidCredentialsException>(() =>
-            _sut.LoginAsync(new LoginUserRequest("missing@ostrun.dev", "Password123!"), CancellationToken.None));
+            _sut.LoginAsync(new LoginUserRequest("missing@ostrun.dev", "Password123!"), Client, CancellationToken.None));
 
         _passwordHasher.Received(1).SimulateVerify("Password123!");
     }
@@ -107,6 +115,6 @@ public class AuthServiceTests
         _passwordHasher.Verify("hashed-password", "wrong-password").Returns(false);
 
         await Assert.ThrowsAsync<InvalidCredentialsException>(() =>
-            _sut.LoginAsync(new LoginUserRequest("user@ostrun.dev", "wrong-password"), CancellationToken.None));
+            _sut.LoginAsync(new LoginUserRequest("user@ostrun.dev", "wrong-password"), Client, CancellationToken.None));
     }
 }
