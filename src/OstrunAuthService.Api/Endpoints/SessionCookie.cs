@@ -16,6 +16,8 @@ internal static class SessionCookie
         Path = "/auth",
     };
 
+    public static string? Read(HttpRequest request) => request.Cookies[Name];
+
     public static void Set(HttpResponse response, IssuedSession session) =>
         response.Cookies.Append(Name, session.Token, new CookieOptions(Options) { Expires = session.ExpiresAtUtc });
 }

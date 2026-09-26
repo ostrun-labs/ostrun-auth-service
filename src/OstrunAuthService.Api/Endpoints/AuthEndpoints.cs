@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using OstrunAuthService.Application.Auth;
+using OstrunAuthService.Application.Sessions;
 
 namespace OstrunAuthService.Api.Endpoints;
 
@@ -32,6 +33,18 @@ public static partial class AuthEndpoints
             var outcome = await authService.LoginAsync(request, ClientInfoOf(httpContext), cancellationToken);
             SessionCookie.Set(httpContext.Response, outcome.Session);
             return Results.Ok(outcome.AccessToken);
+        });
+
+        group.MapGet("/session", async (SessionService sessionService, HttpRequest request, CancellationToken cancellationToken) =>
+        {
+            var current = await sessionService.GetCurrentAsync(SessionCookie.Read(request), cancellationToken);
+            return current is null ? Results.Unauthorized() : Results.Ok(current);
+        });
+
+        group.MapPost("/token", async (SessionService sessionService, HttpRequest request, CancellationToken cancellationToken) =>
+        {
+            var accessToken = await sessionService.IssueAccessTokenAsync(SessionCookie.Read(request), cancellationToken);
+            return accessToken is null ? Results.Unauthorized() : Results.Ok(accessToken);
         });
 
         return app;
