@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OstrunAuthService.Application.Abstractions;
 using OstrunAuthService.Application.Auth;
+using OstrunAuthService.Application.Sessions;
 using OstrunAuthService.Infrastructure.Events;
 using OstrunAuthService.Infrastructure.Persistence;
 using OstrunAuthService.Infrastructure.Security;
@@ -84,12 +85,14 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton(sp => JwtSigningKey.FromBase64Pem(sp.GetRequiredService<IOptions<JwtSettings>>().Value.SigningKey));
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IEventPublisher, MassTransitEventPublisher>();
         services.AddScoped<AuthService>();
+        services.AddScoped<SessionService>();
 
         return services;
     }
