@@ -20,4 +20,6 @@ internal static class SessionCookie
 
     public static void Set(HttpResponse response, IssuedSession session) =>
         response.Cookies.Append(Name, session.Token, new CookieOptions(Options) { Expires = session.ExpiresAtUtc });
+
+    public static void Clear(HttpResponse response) => response.Cookies.Delete(Name, Options);
 }

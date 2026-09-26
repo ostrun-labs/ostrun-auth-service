@@ -9,12 +9,13 @@ public class SessionServiceTests
 {
     private readonly ISessionRepository _sessionRepository = Substitute.For<ISessionRepository>();
     private readonly IJwtTokenGenerator _jwtTokenGenerator = Substitute.For<IJwtTokenGenerator>();
+    private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly SessionService _sut;
     private readonly User _user = User.RegisterWithPassword("user@ostrun.dev", "hashed", DateTime.UtcNow);
 
     public SessionServiceTests()
     {
-        _sut = new SessionService(_sessionRepository, _jwtTokenGenerator);
+        _sut = new SessionService(_sessionRepository, _jwtTokenGenerator, _unitOfWork);
     }
 
     [Fact]
@@ -64,6 +65,29 @@ public class SessionServiceTests
 
         Assert.Null(await _sut.IssueAccessTokenAsync(token, CancellationToken.None));
         _jwtTokenGenerator.DidNotReceive().Generate(Arg.Any<User>());
+    }
+
+    [Fact]
+    public async Task SignOutAsync_RemovesTheSession()
+    {
+        var token = Stored(DateTime.UtcNow);
+
+        await _sut.SignOutAsync(token, CancellationToken.None);
+
+        Received.InOrder(() =>
+        {
+            _sessionRepository.Remove(Arg.Is<Session>(s => s.TokenHash == Session.HashToken(token)));
+            _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>());
+        });
+    }
+
+    [Fact]
+    public async Task SignOutAsync_WithUnknownToken_DoesNothing()
+    {
+        await _sut.SignOutAsync("unknown-token", CancellationToken.None);
+
+        _sessionRepository.DidNotReceive().Remove(Arg.Any<Session>());
+        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
     private string Stored(DateTime startedAt)

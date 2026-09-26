@@ -47,6 +47,13 @@ public static partial class AuthEndpoints
             return accessToken is null ? Results.Unauthorized() : Results.Ok(accessToken);
         });
 
+        group.MapPost("/sign-out", async (SessionService sessionService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            await sessionService.SignOutAsync(SessionCookie.Read(httpContext.Request), cancellationToken);
+            SessionCookie.Clear(httpContext.Response);
+            return Results.NoContent();
+        });
+
         return app;
     }
 

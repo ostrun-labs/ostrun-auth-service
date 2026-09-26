@@ -9,4 +9,7 @@ public interface ISessionRepository
 
     // Staged until IUnitOfWork.SaveChangesAsync.
     void Add(Session session);
+
+    // Staged until IUnitOfWork.SaveChangesAsync.
+    void Remove(Session session);
 }
