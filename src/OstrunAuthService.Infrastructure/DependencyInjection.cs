@@ -84,6 +84,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton(sp => JwtSigningKey.FromBase64Pem(sp.GetRequiredService<IOptions<JwtSettings>>().Value.SigningKey));

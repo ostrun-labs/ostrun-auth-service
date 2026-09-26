@@ -10,6 +10,8 @@ public sealed class AuthDbContext(DbContextOptions<AuthDbContext> options) : DbC
 
     public DbSet<Account> Accounts => Set<Account>();
 
+    public DbSet<Session> Sessions => Set<Session>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>(entity =>
@@ -33,6 +35,19 @@ public sealed class AuthDbContext(DbContextOptions<AuthDbContext> options) : DbC
             entity.Property(a => a.ProviderAccountId).IsRequired().HasMaxLength(256);
             entity.HasIndex(a => new { a.ProviderId, a.ProviderAccountId }).IsUnique();
             entity.Property(a => a.CreatedAt).IsRequired();
+        });
+
+        modelBuilder.Entity<Session>(entity =>
+        {
+            entity.ToTable("sessions");
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.TokenHash).IsRequired().HasMaxLength(64);
+            entity.HasIndex(s => s.TokenHash).IsUnique();
+            entity.Property(s => s.ExpiresAt).IsRequired();
+            entity.Property(s => s.CreatedAt).IsRequired();
+            entity.Property(s => s.IpAddress).HasMaxLength(64);
+            entity.Property(s => s.UserAgent).HasMaxLength(512);
+            entity.HasOne(s => s.User).WithMany().HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Cascade);
         });
 
         // MassTransit transactional outbox: published events are saved here in

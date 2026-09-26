@@ -6,6 +6,7 @@ namespace OstrunAuthService.Application.Auth;
 
 public sealed class AuthService(
     IUserRepository userRepository,
+    ISessionRepository sessionRepository,
     IPasswordHasher passwordHasher,
     IJwtTokenGenerator jwtTokenGenerator,
     IEventPublisher eventPublisher,
@@ -22,7 +23,7 @@ public sealed class AuthService(
         return new RegisterUserResult(user.Id, user.Email);
     }
 
-    public async Task<AccessTokenResult> LoginAsync(LoginUserRequest request, CancellationToken cancellationToken)
+    public async Task<LoginOutcome> LoginAsync(LoginUserRequest request, ClientInfo client, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetByEmailAsync(NormalizeEmail(request.Email), cancellationToken);
         if (user?.PasswordHash is null)
@@ -36,11 +37,15 @@ public sealed class AuthService(
             throw new InvalidCredentialsException();
         }
 
-        var token = jwtTokenGenerator.Generate(user);
+        var (session, sessionToken) = Session.Start(user, DateTime.UtcNow, client.IpAddress, client.UserAgent);
+        sessionRepository.Add(session);
         await eventPublisher.PublishUserLoggedInAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new AccessTokenResult(token.Value, token.ExpiresAtUtc);
+        var jwt = jwtTokenGenerator.Generate(user);
+        return new LoginOutcome(
+            new AccessTokenResult(jwt.Value, jwt.ExpiresAtUtc),
+            new IssuedSession(sessionToken, session.ExpiresAt));
     }
 
     // Emails are stored lowercased so the unique index on users.Email also
