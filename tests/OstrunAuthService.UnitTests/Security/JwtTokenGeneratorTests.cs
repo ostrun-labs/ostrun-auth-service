@@ -67,5 +67,5 @@ public class JwtTokenGeneratorTests
         Assert.Equal(["alg", "e", "kid", "kty", "n", "use"], fields);
     }
 
-    private static User NewUser() => new(Guid.NewGuid(), "user@ostrun.dev", "hashed", DateTime.UtcNow);
+    private static User NewUser() => User.RegisterWithPassword("user@ostrun.dev", "hashed", DateTime.UtcNow);
 }
