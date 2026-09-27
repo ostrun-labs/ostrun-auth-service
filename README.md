@@ -27,6 +27,7 @@ Light Clean Architecture in 4 layers:
 - `src/OstrunAuthService.Infrastructure`: EF Core + Npgsql, hashing, JWT generation, event publishing via MassTransit + RabbitMQ (in-memory transport if `RabbitMq__Host` is absent)
 - `src/OstrunAuthService.Api`: .NET 8 Minimal APIs (`/auth/register`, `/auth/login`, `/auth/session`, `/auth/token`, `/auth/sign-out`, `/auth/.well-known/jwks.json`, `/health`)
 - `tests/OstrunAuthService.UnitTests`: unit tests for the Application layer
+- `tests/OstrunAuthService.IntegrationTests`: HTTP tests against the real API and a throwaway Postgres container (Testcontainers)
 
 ## Running locally
 
@@ -41,6 +42,6 @@ The API listens on `http://localhost:8080` (`/health`, `/auth/register`, `/auth/
 
 ```bash
 dotnet build
-dotnet test
+dotnet test   # the integration tests need Docker running
 dotnet tool run dotnet-ef migrations add <Name> --project src/OstrunAuthService.Infrastructure --startup-project src/OstrunAuthService.Api --output-dir Persistence/Migrations
 ```
