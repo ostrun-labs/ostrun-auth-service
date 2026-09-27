@@ -81,6 +81,11 @@
       "name": "Auth__TrustedOrigins",
       "required": false,
       "description": "Comma-separated origins (e.g. https://app.example.com) the browser may be sent back to after social sign-in. Paths on this service's own host are always allowed"
+    },
+    {
+      "name": "Auth__TrustedProxies",
+      "required": false,
+      "description": "Comma-separated IPs or CIDR ranges of the gateway/reverse proxy (e.g. 172.16.0.0/12). Only their X-Forwarded-Proto/Host/For headers are used, to build public OAuth redirect URIs and record client IPs. Unset: forwarded headers are ignored"
     }
   ],
   "ports": [

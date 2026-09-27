@@ -50,6 +50,8 @@ Failures come back as `callbackURL?error=` with `access_denied` (the user declin
 
 Register `<public URL>/auth/callback/google` as the redirect URI on the Google OAuth client.
 
+Behind a gateway that terminates TLS, set `Auth__TrustedProxies` to the gateway's IPs or CIDR range. The service then takes the public scheme, host and client IP from the gateway's `X-Forwarded-*` headers, so the redirect URI sent to Google is the public `https://` one. Headers from any other caller are ignored.
+
 ## Development
 
 ```bash
