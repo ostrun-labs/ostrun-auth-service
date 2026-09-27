@@ -76,6 +76,11 @@
       "name": "Google__ClientSecret",
       "required": false,
       "description": "Google OAuth client secret. Set together with Google__ClientId to enable Google sign-in"
+    },
+    {
+      "name": "Auth__TrustedOrigins",
+      "required": false,
+      "description": "Comma-separated origins (e.g. https://app.example.com) the browser may be sent back to after social sign-in. Paths on this service's own host are always allowed"
     }
   ],
   "ports": [

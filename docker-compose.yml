@@ -28,6 +28,7 @@ services:
       Jwt__ExpirationMinutes: ${JWT_EXPIRATION_MINUTES}
       Google__ClientId: ${GOOGLE_CLIENT_ID:-}
       Google__ClientSecret: ${GOOGLE_CLIENT_SECRET:-}
+      Auth__TrustedOrigins: ${AUTH_TRUSTED_ORIGINS:-}
     ports:
       - "8080:8080"
     depends_on:

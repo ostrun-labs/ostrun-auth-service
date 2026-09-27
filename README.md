@@ -38,6 +38,18 @@ docker compose up --build
 
 The API listens on `http://localhost:8080` (`/health`, `/auth/register`, `/auth/login`, `/auth/session`, `/auth/token`, `/auth/sign-out`, `/auth/providers`, `/auth/.well-known/jwks.json`). EF Core migrations apply automatically on startup.
 
+## Social sign-in
+
+Google sign-in is enabled when `Google__ClientId` and `Google__ClientSecret` are both set. `GET /auth/providers` lists what's enabled.
+
+1. The frontend sends the browser to `GET /auth/sign-in/social/google?callbackURL=<where to land>`. `callbackURL` must be a path on this service's host or an origin listed in `Auth__TrustedOrigins`.
+2. After Google, the service finds, links or creates the user, sets the session cookie, and redirects to `callbackURL`.
+3. The frontend calls `POST /auth/token` to get a JWT for other services.
+
+Failures come back as `callbackURL?error=` with `access_denied` (the user declined), `email_not_verified` (Google has no verified email for the account) or `sign_in_failed`.
+
+Register `<public URL>/auth/callback/google` as the redirect URI on the Google OAuth client.
+
 ## Development
 
 ```bash

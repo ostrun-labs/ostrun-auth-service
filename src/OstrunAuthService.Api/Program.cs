@@ -17,7 +17,10 @@ builder.Services.AddSocialProviderSettings();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer();
+    .AddJwtBearer()
+    .AddSocialProviders(builder.Configuration);
+
+builder.Services.AddOptions<AuthSettings>().BindConfiguration(AuthSettings.SectionName);
 
 builder.Services
     .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
@@ -68,6 +71,7 @@ app.MapHealthChecks("/health");
 app.MapAuthEndpoints();
 app.MapJwksEndpoint();
 app.MapProvidersEndpoint();
+app.MapSocialEndpoints();
 
 app.Run();
 
