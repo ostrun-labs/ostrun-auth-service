@@ -9,13 +9,14 @@ public class SessionServiceTests
 {
     private readonly ISessionRepository _sessionRepository = Substitute.For<ISessionRepository>();
     private readonly IJwtTokenGenerator _jwtTokenGenerator = Substitute.For<IJwtTokenGenerator>();
+    private readonly IEventPublisher _eventPublisher = Substitute.For<IEventPublisher>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly SessionService _sut;
     private readonly User _user = User.RegisterWithPassword("user@ostrun.dev", "hashed", DateTime.UtcNow);
 
     public SessionServiceTests()
     {
-        _sut = new SessionService(_sessionRepository, _jwtTokenGenerator, _unitOfWork);
+        _sut = new SessionService(_sessionRepository, _jwtTokenGenerator, _eventPublisher, _unitOfWork);
     }
 
     [Fact]

@@ -31,4 +31,8 @@ public sealed class User
         user._accounts.Add(Account.Credential(user.Id, passwordHash, createdAt));
         return user;
     }
+
+    // Emails are stored lowercased so the unique index on users.Email also
+    // rejects case variants of an existing address.
+    public static string NormalizeEmail(string email) => email.ToLowerInvariant();
 }
