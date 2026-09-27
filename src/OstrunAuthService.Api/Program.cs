@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using OstrunAuthService.Api;
 using OstrunAuthService.Api.Endpoints;
+using OstrunAuthService.Api.Hosting;
 using OstrunAuthService.Api.Social;
 using OstrunAuthService.Infrastructure;
 using OstrunAuthService.Infrastructure.Persistence;
@@ -14,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSocialProviderSettings();
+builder.Services.AddTrustedProxyForwarding(builder.Configuration);
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -62,6 +64,7 @@ using (var scope = app.Services.CreateScope())
     await scope.ServiceProvider.GetRequiredService<AuthDbContext>().Database.MigrateAsync();
 }
 
+app.UseTrustedProxyForwarding();
 app.UseExceptionHandler();
 
 app.UseAuthentication();
