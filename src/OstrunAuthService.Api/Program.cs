@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using OstrunAuthService.Api;
 using OstrunAuthService.Api.Endpoints;
+using OstrunAuthService.Api.Social;
 using OstrunAuthService.Infrastructure;
 using OstrunAuthService.Infrastructure.Persistence;
 using OstrunAuthService.Infrastructure.Security;
@@ -12,6 +13,7 @@ using OstrunAuthService.Infrastructure.Security;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddSocialProviderSettings();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -65,6 +67,7 @@ app.UseAuthorization();
 app.MapHealthChecks("/health");
 app.MapAuthEndpoints();
 app.MapJwksEndpoint();
+app.MapProvidersEndpoint();
 
 app.Run();
 

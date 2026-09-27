@@ -66,6 +66,16 @@
       "name": "RabbitMq__Password",
       "required": false,
       "description": "RabbitMQ password (default: guest)"
+    },
+    {
+      "name": "Google__ClientId",
+      "required": false,
+      "description": "Google OAuth client id. Set together with Google__ClientSecret to enable Google sign-in"
+    },
+    {
+      "name": "Google__ClientSecret",
+      "required": false,
+      "description": "Google OAuth client secret. Set together with Google__ClientId to enable Google sign-in"
     }
   ],
   "ports": [
