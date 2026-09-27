@@ -57,7 +57,7 @@ public static partial class AuthEndpoints
         return app;
     }
 
-    private static ClientInfo ClientInfoOf(HttpContext httpContext)
+    internal static ClientInfo ClientInfoOf(HttpContext httpContext)
     {
         var userAgent = httpContext.Request.Headers.UserAgent.ToString();
         return new ClientInfo(
