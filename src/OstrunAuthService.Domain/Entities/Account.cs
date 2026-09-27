@@ -28,4 +28,13 @@ public sealed class Account
         PasswordHash = passwordHash,
         CreatedAt = createdAt,
     };
+
+    public static Account Social(Guid userId, string providerId, string providerAccountId, DateTime createdAt) => new()
+    {
+        Id = Guid.NewGuid(),
+        UserId = userId,
+        ProviderId = providerId,
+        ProviderAccountId = providerAccountId,
+        CreatedAt = createdAt,
+    };
 }

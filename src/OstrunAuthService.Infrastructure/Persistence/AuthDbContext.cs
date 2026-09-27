@@ -31,6 +31,10 @@ public sealed class AuthDbContext(DbContextOptions<AuthDbContext> options) : DbC
         {
             entity.ToTable("accounts");
             entity.HasKey(a => a.Id);
+            // Ids are created in the domain. Without this, EF treats a new
+            // account added to a loaded user's collection as an existing row
+            // (because its key is already set) and issues an UPDATE.
+            entity.Property(a => a.Id).ValueGeneratedNever();
             entity.Property(a => a.ProviderId).IsRequired().HasMaxLength(64);
             entity.Property(a => a.ProviderAccountId).IsRequired().HasMaxLength(256);
             entity.HasIndex(a => new { a.ProviderId, a.ProviderAccountId }).IsUnique();
