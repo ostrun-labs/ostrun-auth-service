@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using OstrunAuthService.Application.Auth;
+using OstrunAuthService.Application.Sessions;
 
 namespace OstrunAuthService.Api.Endpoints;
 
@@ -21,7 +22,7 @@ public static partial class AuthEndpoints
             return Results.Created($"/auth/users/{result.UserId}", result);
         });
 
-        group.MapPost("/login", async (LoginUserRequest request, AuthService authService, CancellationToken cancellationToken) =>
+        group.MapPost("/login", async (LoginUserRequest request, AuthService authService, HttpContext httpContext, CancellationToken cancellationToken) =>
         {
             var validationError = Validate(request.Email, request.Password);
             if (validationError is not null)
@@ -29,11 +30,39 @@ public static partial class AuthEndpoints
                 return Results.ValidationProblem(validationError);
             }
 
-            var result = await authService.LoginAsync(request, cancellationToken);
-            return Results.Ok(result);
+            var outcome = await authService.LoginAsync(request, ClientInfoOf(httpContext), cancellationToken);
+            SessionCookie.Set(httpContext.Response, outcome.Session);
+            return Results.Ok(outcome.AccessToken);
+        });
+
+        group.MapGet("/session", async (SessionService sessionService, HttpRequest request, CancellationToken cancellationToken) =>
+        {
+            var current = await sessionService.GetCurrentAsync(SessionCookie.Read(request), cancellationToken);
+            return current is null ? Results.Unauthorized() : Results.Ok(current);
+        });
+
+        group.MapPost("/token", async (SessionService sessionService, HttpRequest request, CancellationToken cancellationToken) =>
+        {
+            var accessToken = await sessionService.IssueAccessTokenAsync(SessionCookie.Read(request), cancellationToken);
+            return accessToken is null ? Results.Unauthorized() : Results.Ok(accessToken);
+        });
+
+        group.MapPost("/sign-out", async (SessionService sessionService, HttpContext httpContext, CancellationToken cancellationToken) =>
+        {
+            await sessionService.SignOutAsync(SessionCookie.Read(httpContext.Request), cancellationToken);
+            SessionCookie.Clear(httpContext.Response);
+            return Results.NoContent();
         });
 
         return app;
+    }
+
+    private static ClientInfo ClientInfoOf(HttpContext httpContext)
+    {
+        var userAgent = httpContext.Request.Headers.UserAgent.ToString();
+        return new ClientInfo(
+            httpContext.Connection.RemoteIpAddress?.ToString(),
+            userAgent.Length == 0 ? null : userAgent[..Math.Min(userAgent.Length, 512)]);
     }
 
     private static Dictionary<string, string[]>? Validate(string email, string password)
