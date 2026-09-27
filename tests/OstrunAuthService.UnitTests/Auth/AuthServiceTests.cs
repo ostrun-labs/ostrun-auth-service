@@ -1,6 +1,7 @@
 using NSubstitute;
 using OstrunAuthService.Application.Abstractions;
 using OstrunAuthService.Application.Auth;
+using OstrunAuthService.Application.Sessions;
 using OstrunAuthService.Application.Exceptions;
 using OstrunAuthService.Domain.Entities;
 
@@ -20,7 +21,8 @@ public class AuthServiceTests
 
     public AuthServiceTests()
     {
-        _sut = new AuthService(_userRepository, _sessionRepository, _passwordHasher, _jwtTokenGenerator, _eventPublisher, _unitOfWork);
+        _sut = new AuthService(_userRepository, _passwordHasher, _eventPublisher, _unitOfWork,
+            new SessionService(_sessionRepository, _jwtTokenGenerator, _eventPublisher, _unitOfWork));
     }
 
     [Fact]

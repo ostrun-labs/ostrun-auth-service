@@ -7,8 +7,24 @@ namespace OstrunAuthService.Application.Sessions;
 public sealed class SessionService(
     ISessionRepository sessionRepository,
     IJwtTokenGenerator jwtTokenGenerator,
+    IEventPublisher eventPublisher,
     IUnitOfWork unitOfWork)
 {
+    // The last step of every sign-in method. Commits the session together with
+    // whatever the caller staged (e.g. a new user), plus UserLoggedIn.
+    public async Task<LoginOutcome> StartAsync(User user, ClientInfo client, CancellationToken cancellationToken)
+    {
+        var (session, sessionToken) = Session.Start(user, DateTime.UtcNow, client.IpAddress, client.UserAgent);
+        sessionRepository.Add(session);
+        await eventPublisher.PublishUserLoggedInAsync(user, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var jwt = jwtTokenGenerator.Generate(user);
+        return new LoginOutcome(
+            new AccessTokenResult(jwt.Value, jwt.ExpiresAtUtc),
+            new IssuedSession(sessionToken, session.ExpiresAt));
+    }
+
     public async Task<CurrentSessionResult?> GetCurrentAsync(string? token, CancellationToken cancellationToken)
     {
         var session = await FindActiveAsync(token, cancellationToken);
