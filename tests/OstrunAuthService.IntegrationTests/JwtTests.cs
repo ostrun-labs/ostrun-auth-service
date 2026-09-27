@@ -70,21 +70,13 @@ public class JwtTests(AuthApiFactory factory)
     [MemberData(nameof(BadSigningKeys))]
     public void Startup_WithABadSigningKey_FailsWithAClearError(string signingKey, string expectedError)
     {
-        var original = Environment.GetEnvironmentVariable("Jwt__SigningKey");
-        Environment.SetEnvironmentVariable("Jwt__SigningKey", signingKey);
-        try
-        {
-            using var misconfigured = new WebApplicationFactory<Program>();
+        using var _ = new EnvironmentOverride(("Jwt__SigningKey", signingKey));
+        using var misconfigured = new WebApplicationFactory<Program>();
 
-            var error = Record.Exception(() => misconfigured.CreateClient());
+        var error = Record.Exception(() => misconfigured.CreateClient());
 
-            Assert.NotNull(error);
-            Assert.Contains(expectedError, error.ToString());
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable("Jwt__SigningKey", original);
-        }
+        Assert.NotNull(error);
+        Assert.Contains(expectedError, error.ToString());
     }
 
     private async Task<(string Token, string Email)> LoginToken()
