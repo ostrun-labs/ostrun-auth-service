@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/Thykimik/ostrun-auth-service/contracts/ostrun/auth/UserRegistered.v1.json",
+  "$id": "https://github.com/ostrun-labs/ostrun-auth-service/contracts/ostrun/auth/UserRegistered.v1.json",
   "title": "Ostrun.Auth.UserRegistered",
   "version": 1,
   "description": "Published when a new user successfully registers on the Auth service.",
