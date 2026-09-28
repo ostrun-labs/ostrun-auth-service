@@ -1,14 +1,14 @@
 # ostrun-auth-service
 
-Reference Auth service for [Ostrun](https://github.com/ostrun-labs/ostrun), provider `Ostrun`, service `auth`.
+Reference Auth service for [Ostrun](https://github.com/ostrun-labs), provider `Ostrun`, service `auth`.
 
 ## Status
 
-Manifest, event contracts, and a .NET 8 service (register/login JWT) are written. This service is developed separately from Ostrun's core repo. Ostrun only references it (through its manifest, `repository` and optionally `registry`), and the central catalog points here instead of hosting its code.
+Manifest, event contracts, and a .NET 8 service are written: email/password and Google sign-in, cookie sessions, RS256 JWTs published through JWKS, and auth events delivered through a transactional outbox. This service is developed separately from Ostrun's core repo. Ostrun only references it (through its manifest, `repository` and optionally `registry`), and the central catalog points here instead of hosting its code.
 
 ## Role
 
-- Account, session, and JWT management (register/login)
+- Account, session, and JWT management (email/password and social sign-in)
 - Publishes the `Ostrun.Auth.UserRegistered` and `Ostrun.Auth.UserLoggedIn` events
 - Part of the Ostrun catalog's default selection, but remains an independent, replaceable service (other Auth providers may appear in the catalog)
 
