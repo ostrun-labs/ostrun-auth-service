@@ -45,7 +45,8 @@
     {
       "name": "Jwt__ExpirationMinutes",
       "required": false,
-      "description": "Token validity in minutes (default: 60)"
+      "default": "60",
+      "description": "Token validity in minutes"
     },
     {
       "name": "RabbitMq__Host",
