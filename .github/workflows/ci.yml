@@ -25,3 +25,6 @@ jobs:
 
       - name: Test
         run: dotnet test OstrunAuthService.sln --no-build --configuration Release
+
+  ostrun-validate:
+    uses: ostrun-labs/ostrun/.github/workflows/validate-service.yml@main
