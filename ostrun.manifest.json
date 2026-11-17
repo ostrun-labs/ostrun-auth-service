@@ -30,16 +30,19 @@
     {
       "name": "Jwt__SigningKey",
       "required": true,
+      "generate": "rsa-private-key",
       "description": "RSA private key (2048+ bits) as base64-encoded PEM, generate one per instance. Its public half is served at /auth/.well-known/jwks.json"
     },
     {
       "name": "Jwt__Issuer",
       "required": true,
+      "generate": "app-name",
       "description": "JWT issuer (iss)"
     },
     {
       "name": "Jwt__Audience",
       "required": true,
+      "generate": "app-name",
       "description": "JWT audience (aud)"
     },
     {
