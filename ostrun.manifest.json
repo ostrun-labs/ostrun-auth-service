@@ -8,6 +8,7 @@
   "registry": null,
   "needsDb": true,
   "basePath": "/auth",
+  "exposure": "public",
   "events": {
     "published": [
       "Ostrun.Auth.UserRegistered",
